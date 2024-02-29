@@ -3,7 +3,6 @@ package lab1.ex1;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.Arrays;
 
 public class client {
     public static void main(String args[]) throws Exception {
@@ -21,8 +20,8 @@ public class client {
             socket.send(sendPacket);
 
             // Wait for response from the server
-            Arrays.fill(buffer, (byte) 0);
-            DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
+            byte[] receiveBuffer = new byte[1024];
+            DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
             socket.receive(receivePacket);
 
             // Print received msg

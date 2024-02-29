@@ -25,7 +25,7 @@ public class server {
                 System.out.println("Msg from client: " + msg);
 
                 // Send confirmation msg to sender
-                byte[] sendBuffer = "received msg".getBytes();
+                byte[] sendBuffer = ("hello " + receivePacket.getAddress()).getBytes();
                 DatagramPacket sendPacket = new DatagramPacket(sendBuffer, sendBuffer.length,
                         receivePacket.getAddress(), receivePacket.getPort());
                 socket.send(sendPacket);

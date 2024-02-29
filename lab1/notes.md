@@ -38,6 +38,8 @@ Zestaw dobrze znanych portów określa porty, z którymi mogą łączyć się kl
   transmisja w obie strony (full-duplex)
 * niezawodny - potwierdzenia odbioru, retransmisje, kontrola przepływu danych, FCS dla nagłówka i
   danych, porządkowanie kolejności segmentów, usuwanie zdublowanych segmentów, kontrola przeciążeń
+* point-point
+
 
 TCP specyfikuje format danych oraz procedury inicjalizacji i zamykania połączenia. Nie specyfikuje
 natomiast API.
