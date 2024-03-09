@@ -21,7 +21,6 @@ def handle_client(client: Client, clients: list[Client], pool: set[int]):
             message = client.socket.recv(1024).decode("utf-8")
             if not message:
                 print(f"Client {client.name} disconnected")
-                client.socket.close()
                 with lock:
                     clients.remove(client)
                     pool.add(client.id)

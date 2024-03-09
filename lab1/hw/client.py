@@ -28,6 +28,7 @@ def receive(client_socket: socket.socket):
                 break
             print(f"\n<<< {message}")
         except Exception as e:
+            closed = True
             print(e)
             break
 
@@ -77,8 +78,6 @@ def client():
         except Exception as e:
             print(e)
             break
-
-    client_socket.close()
 
 
 if __name__ == "__main__":
