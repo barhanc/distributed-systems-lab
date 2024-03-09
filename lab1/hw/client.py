@@ -54,7 +54,6 @@ def client():
     #
     #
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     udp_socket.bind(client_socket.getsockname())
 
     udp_thread = threading.Thread(target=receive_udp, args=(udp_socket,))
