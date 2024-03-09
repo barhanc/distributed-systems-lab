@@ -46,7 +46,7 @@ def handle_udp(udp_socket: socket.socket, clients: list[Client]):
     while True:
         try:
             buff, addr = udp_socket.recvfrom(1024)
-            print(f"Received message\n{buff.decode("utf-8")}")
+            print(f"Received message\n{buff.decode('utf-8')}")
             for client in clients:
                 if client.address != addr:
                     udp_socket.sendto(buff, client.address)

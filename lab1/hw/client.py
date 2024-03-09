@@ -36,7 +36,7 @@ def receive_udp(udp_socket: socket.socket):
     while True:
         try:
             buff, _ = udp_socket.recvfrom(1024)
-            print(f"\n<<<\n{buff.decode("utf-8")}")
+            print(f"\n<<<\n{buff.decode('utf-8')}")
         except Exception as e:
             print(e)
             break
@@ -54,6 +54,7 @@ def client():
     #
     #
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     udp_socket.bind(client_socket.getsockname())
 
     udp_thread = threading.Thread(target=receive_udp, args=(udp_socket,))
