@@ -73,14 +73,12 @@ def client():
                 client_socket.send(message.encode("utf-8"))
 
         except KeyboardInterrupt:
+            print("\nClient stopped")
             break
 
         except Exception as e:
             print(e)
             break
-
-    if client_socket is not None:
-        client_socket.close()
 
 
 if __name__ == "__main__":
