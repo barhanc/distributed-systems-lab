@@ -79,6 +79,9 @@ def client():
             print(e)
             break
 
+    if client_socket is not None:
+        client_socket.close()
+
 
 if __name__ == "__main__":
     client()
