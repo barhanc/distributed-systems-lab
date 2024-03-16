@@ -3,6 +3,9 @@ import base64
 import asyncio
 import requests
 import statistics
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from fastapi import FastAPI, Form
