@@ -112,7 +112,8 @@ html_log_error = (
 @app.post("/result", response_class=HTMLResponse)
 async def process_request(city: str = Form(None), forecast: int = Form(None)):
     if None in (city, forecast):
-        return html_log_error("Not all parameters were provided!")
+        content = html_log_error("Not all parameters were provided!")
+        return HTMLResponse(content=content, status_code=501)
 
     # Request latitude, longitude from 1st API
     geocoding = await asyncio.to_thread(
@@ -120,11 +121,13 @@ async def process_request(city: str = Form(None), forecast: int = Form(None)):
     )
 
     if geocoding is None or len(geocoding) < 1:
-        return html_log_error(f"Error retrieving geocoding of the city: {city}!")
+        content = html_log_error(f"Error retrieving geocoding of the city: {city}!")
+        return HTMLResponse(content=content, status_code=404)
     geocoding = geocoding[0]
 
     if any(p not in geocoding for p in ("latitude", "longitude", "country")):
-        return html_log_error(f"Geocoding does not contain necessary parameters!")
+        content = html_log_error(f"Geocoding does not contain necessary parameters!")
+        return HTMLResponse(content=content, status_code=501)
 
     lat, lon, country = geocoding["latitude"], geocoding["longitude"], geocoding["country"]
 
@@ -135,15 +138,17 @@ async def process_request(city: str = Form(None), forecast: int = Form(None)):
     )
 
     if weather_info is None:
-        return html_log_error("Error retrieving weather forecasts!")
+        content = html_log_error("Error retrieving weather forecasts!")
+        return HTMLResponse(content=content, status_code=404)
 
     # Process weather forecast
     weather_info = process_weather_info(weather_info)
 
     if weather_info is None:
-        return html_log_error("Error processing weather forecasts!")
+        content = html_log_error("Error processing weather forecasts!")
+        return HTMLResponse(content=content, status_code=501)
 
-    return f"""
+    content = f"""
     <html>
         <head>
             <title>Simple Weather Forecast</title>
@@ -155,3 +160,4 @@ async def process_request(city: str = Form(None), forecast: int = Form(None)):
         </body>
     </html>
     """
+    return HTMLResponse(content=content, status_code=200)
