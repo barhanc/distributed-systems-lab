@@ -44,7 +44,7 @@ def handle(stub: gen.event_sub_pb2_grpc.EventSubscriptionStub, article_type: str
                 case grpc.StatusCode.OK | grpc.StatusCode.CANCELLED:
                     break
                 case _:
-                    print(f"Failed to get {article_type} article from server. [{e.code()}] Reconnecting ...")
+                    print(f"Failed to get {article_type} article from server. [{e.code()}] Retrying ...")
                     time.sleep(5)
 
 
