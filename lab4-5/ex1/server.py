@@ -55,7 +55,11 @@ if __name__ == "__main__":
     update_thread.daemon = True
     update_thread.start()
 
-    server = grpc.server(thread_pool=ThreadPoolExecutor(max_workers=10))
+    server_options = [
+        ("grpc.keepalive_time_ms", 20000),
+        ("grpc.keepalive_timeout_ms", 10000),
+    ]
+    server = grpc.server(thread_pool=ThreadPoolExecutor(max_workers=10), options=server_options)
     port = 50051
 
     gen.event_sub_pb2_grpc.add_EventSubscriptionServicer_to_server(EventSubscriptionServicer(db), server)

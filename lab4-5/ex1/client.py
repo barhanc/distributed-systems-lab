@@ -93,6 +93,10 @@ def client(stub):
 if __name__ == "__main__":
     port = 50051
 
+    channel_options = [
+        ("grpc.keepalive_time_ms", 8000),
+        ("grpc.keepalive_timeout_ms", 5000),
+    ]
     with grpc.insecure_channel(target=f"localhost:{port}") as channel:
         stub = gen.event_sub_pb2_grpc.EventSubscriptionStub(channel)
         client(stub)
