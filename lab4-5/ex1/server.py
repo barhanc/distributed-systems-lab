@@ -23,7 +23,7 @@ def update(db: list[gen.event_sub_pb2.Article]):
                 comments=[
                     gen.event_sub_pb2.Comment(
                         author="".join(random.choices(string.ascii_letters, k=10)),
-                        comment=random.choice(["Nice", "Ok", "Bad", "Terrible"]),
+                        comment=random.choice(["Nice", "Ok", "Bad"]),
                     )
                     for _ in range(random.randint(1, 4))
                 ],
