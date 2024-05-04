@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+enum ArticleType{
+    US=0;
+    WORLD=1;
+    BUSINESS=2;
+    ARTS=3;
+    LIFESTYLE=4;
+}
+
+message Article{
+    ArticleType articleType=1;
+    string author=2;
+    string title=3;
+    string summary=4;
+    repeated Comment comments=5;
+}
+
+message Comment{
+    string author=1;
+    string comment=2;
+}
+
+message SubscriptionRequest {
+    ArticleType articleType = 1;
+}
+
+service EventSubscription {
+    rpc SubscribeToEvents(SubscriptionRequest) returns (stream Article) {}
+}
