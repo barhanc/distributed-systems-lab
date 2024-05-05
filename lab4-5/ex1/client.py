@@ -52,8 +52,8 @@ def client(stub):
     subscriptions: list[gen.event_sub_pb2.ArticleType] = []
     handle_threads = []
 
-    try:
-        while True:
+    while True:
+        try:
             command = input(">>> ")
             matched = False
 
@@ -86,8 +86,12 @@ def client(stub):
             if not matched and len(command) > 0:
                 print(HELP_PROMPT)
 
-    except KeyboardInterrupt:
-        exit(0)
+        except KeyboardInterrupt:
+            exit(0)
+
+        except Exception as e:
+            print(e)
+            exit(0)
 
 
 if __name__ == "__main__":
