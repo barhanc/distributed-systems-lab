@@ -3,3 +3,5 @@ brew services start rabbitmq
 brew services stop rabbitmq
 
 rabbitmq-plugins enable rabbitmq_management
+
+http://localhost:15672/ guest guest
