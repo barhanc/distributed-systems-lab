@@ -12,3 +12,4 @@ lib
 out
 *.iml
 *.jar
+apache-zookeeper-3.8.4-bin/
