@@ -47,11 +47,12 @@ class App:
     def watch_children(self, tnode: TNode, event):
         match event.type:
             case "CHILD":
-                try:
+                if self.zk.exists(tnode.node):
                     ch = self.zk.get_children(tnode.node)
 
                     if len(ch) > len(tnode.children):
-                        print(f"[INFO] Child has been created in {tnode.node}")
+                        print(f'[INFO] Child has been created in "{tnode.node}".')
+                        print(f"[INFO] Total number of child nodes is {self.num_nodes(self.node)-1}")
 
                         for c in set(ch) - set(tnode.children):
                             path = tnode.node + "/" + c
@@ -59,13 +60,14 @@ class App:
                                 path=path, watch=lambda e: self.watch_children(TNode(path, []), e)
                             )
                     else:
-                        print(f"[INFO] Child has been deleted in {tnode.node}")
+                        print(f'[INFO] Child has been deleted in "{tnode.node}"')
 
                     self.zk.get_children_async(
                         path=tnode.node, watch=lambda e: self.watch_children(TNode(tnode.node, ch), e)
                     )
-                except kz.exceptions.NoNodeError as e:
-                    ...
+
+                else:
+                    print(f'[INFO] Node "{tnode.node}" has been deleted')
             case _:
                 pass
 
@@ -74,6 +76,9 @@ class App:
         for i, c in enumerate(ch := sorted(self.zk.get_children(node))):
             ret += self.tree(node=node + "/" + c, header=header + ("   " if last else "│  "), last=(i == len(ch) - 1))
         return ret
+
+    def num_nodes(self, node):
+        return 1 + sum(self.num_nodes(node + "/" + c) for c in self.zk.get_children(node))
 
     def mainloop(self) -> None:
         try:
@@ -106,9 +111,12 @@ class App:
                         print(f'[INFO] Node "{self.node}" does not exist')
                 else:
                     print("Unknown command. Usage:\n List all nodes: ==> tree\n Quit:           ==> q")
+
         except KeyboardInterrupt:
-            ...
+            print("Interrupted")
+
         finally:
+            self.app_proc.kill() if self.app_proc is not None else ...
             self.zk.stop()
 
 
