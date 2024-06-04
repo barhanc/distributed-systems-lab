@@ -24,47 +24,34 @@ class App:
 
         match event.type:
             case "CREATED":
-                try:
-                    self.app_proc = subprocess.Popen(self.ext_app)
-                except Exception as e:
-                    print(f"[ERROR] Exception occurred while opening app {self.ext_app}: {e}")
-
-                self.zk.get_children_async(
-                    path=self.node, watch=lambda e: self.watch_children(TNode(self.node, []), e)
-                )
+                self.app_proc = subprocess.Popen(self.ext_app)
+                self.zk.get_children(path=self.node, watch=lambda e: self.watch_children(TNode(self.node, []), e))
 
             case "DELETED":
-                try:
-                    self.app_proc.kill() if self.app_proc is not None else ...
-                except Exception as e:
-                    print(f"[ERROR] Exception occurred while closing app {self.ext_app}: {e}")
+                self.app_proc.kill() if self.app_proc is not None else ...
 
             case _:
                 pass
 
-        self.zk.exists_async(path=self.node, watch=self.watch_node)
+        self.zk.exists(self.node, watch=self.watch_node)
 
     def watch_children(self, tnode: TNode, event):
         match event.type:
             case "CHILD":
                 if self.zk.exists(tnode.node):
-                    ch = self.zk.get_children(tnode.node)
+                    ch = self.zk.get_children(
+                        tnode.node, watch=lambda e: self.watch_children(TNode(tnode.node, ch), e)
+                    )
 
                     if len(ch) > len(tnode.children):
                         print(f'[INFO] Child has been created in "{tnode.node}".')
-                        print(f"[INFO] Total number of child nodes is {self.num_nodes(self.node)-1}")
+                        print(f"[INFO] Total number of child nodes is {self.cnt_nodes(self.node)-1}")
 
                         for c in set(ch) - set(tnode.children):
-                            path = tnode.node + "/" + c
-                            self.zk.get_children_async(
-                                path=path, watch=lambda e: self.watch_children(TNode(path, []), e)
-                            )
+                            node = tnode.node + "/" + c
+                            self.zk.get_children(node, watch=lambda e: self.watch_children(TNode(node, []), e))
                     else:
                         print(f'[INFO] Child has been deleted in "{tnode.node}"')
-
-                    self.zk.get_children_async(
-                        path=tnode.node, watch=lambda e: self.watch_children(TNode(tnode.node, ch), e)
-                    )
 
                 else:
                     print(f'[INFO] Node "{tnode.node}" has been deleted')
@@ -77,25 +64,21 @@ class App:
             ret += self.tree(node=node + "/" + c, header=header + ("   " if last else "│  "), last=(i == len(ch) - 1))
         return ret
 
-    def num_nodes(self, node):
-        return 1 + sum(self.num_nodes(node + "/" + c) for c in self.zk.get_children(node))
+    def cnt_nodes(self, node):
+        return 1 + sum(self.cnt_nodes(node + "/" + c) for c in self.zk.get_children(node))
+
+    def set_children_watch(self, node):
+        ch = self.zk.get_children(node, watch=lambda e: self.watch_children(TNode(node, ch), e))
+        for c in ch:
+            self.set_children_watch(node + "/" + c)
 
     def mainloop(self) -> None:
-        try:
-            self.zk.start()
-        except Exception as e:
-            print(f"[ERROR] Exception occurred during connection to zk: {e}")
-            return
+        self.zk.start()
 
-        self.zk.exists_async(path=self.node, watch=self.watch_node)
-
-        if self.zk.exists(path=self.node):
+        if self.zk.exists(self.node, watch=self.watch_node):
             print(f'[INFO] "{self.node}" already exists')
-
-            try:
-                self.app_proc = subprocess.Popen(self.ext_app)
-            except Exception as e:
-                print(f"[ERROR] Exception occurred while opening app {self.ext_app}: {e}")
+            self.app_proc = subprocess.Popen(self.ext_app)
+            self.set_children_watch(self.node)
 
         try:
             while True:
@@ -123,5 +106,5 @@ class App:
 if __name__ == "__main__":
     znode = "/a"
     hosts = "127.0.0.1:2181"
-    ext_app = "gnome-calculator"
+    ext_app = sys.argv[1] if len(sys.argv) == 2 else "gnome-calculator"
     App(node=znode, ext_app=ext_app, hosts=hosts).mainloop()
